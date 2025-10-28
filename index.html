@@ -1,217 +1,436 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Stellar Garden — Single File</title>
-  <style>
-    :root{
-      --bg:#0b1020; --card:#0f1724; --accent:#7c3aed; --muted:#9aa4b2; --glass: rgba(255,255,255,0.04);
-      --radius:14px; --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.12), transparent), linear-gradient(180deg,#071026 0%, #071428 50%, #0b1020 100%); color:#e6eef8; min-height:100vh;}
-    .wrap{max-width:980px;margin:40px auto;padding:24px}
+    <link rel="icon" type="image/png" href="favicon.ico">
 
-    header{Display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ff6b6b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#081228}
-    h1{margin:0;font-size:20px}
-    p.lead{margin:0;color:var(--muted);font-size:13px}
-
-    main{margin-top:28px;display:grid;grid-template-columns:1fr;gap:20px}
-    .hero{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);padding:20px;border-radius:var(--radius);box-shadow:0 8px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.04);display:flex;gap:20px;align-items:center}
-    .hero .left{flex:1}
-    .hero h2{margin:0 0 8px 0}
-    .hero p{margin:0;color:var(--muted)}
-    .cta{margin-top:12px}
-
-    .panel{background:var(--card);padding:16px;border-radius:12px;border:1px solid var(--glass)}
-
-    .seed-area{display:flex;gap:12px;flex-direction:column}
-    .seed-controls{display:flex;gap:8px;align-items:center}
-    input[type=text]{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
-    button{background:var(--accent);border:0;padding:10px 14px;border-radius:8px;color:white;cursor:pointer;font-weight:600}
-    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
-
-    .seed-output{margin-top:12px;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:#dcecff}
-    .muted{color:var(--muted);font-size:13px}
-
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    .card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
-    .spec-img{width:100%;height:130px;object-fit:cover;border-radius:8px;margin-bottom:8px}
-
-    footer{margin-top:22px;color:var(--muted);font-size:13px;text-align:center}
-
-    /* small animations */
-    .twinkle{position:relative}
-    .twinkle::after{content:'';position:absolute;right:-6px;top:-6px;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);filter:blur(6px);opacity:0.8;animation:blink 3s linear infinite}
-    @keyframes blink{0%{opacity:0.1}50%{opacity:0.9}100%{opacity:0.1}}
-
-    /* responsive */
-    @media(min-width:860px){main{grid-template-columns:2fr 1fr}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Micro Tetris</title>
+<style>
+  :root{
+    --bg:#0b1220; --panel:#0f1724; --accent:#00d1ff; --muted:#9aa4b2; --glass: rgba(255,255,255,0.03);
+    --cell: 28px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#041022,#08122a); color:#e8f5ff; display:flex; min-height:100vh; align-items:center; justify-content:center;}
+  .wrap{display:flex; gap:20px; align-items:flex-start; padding:28px;}
+  .board-panel, .info {background:var(--panel); padding:18px; border-radius:12px; border:1px solid var(--glass); box-shadow: 0 10px 30px rgba(2,6,23,0.6);}
+  canvas{display:block; background:linear-gradient(180deg,#071226,#042135); border-radius:6px; image-rendering:pixelated;}
+  .info{width:260px}
+  h1{margin:0 0 6px 0; font-size:18px}
+  .muted{color:var(--muted); font-size:13px}
+  .stat{display:flex; justify-content:space-between; margin:8px 0; font-weight:600}
+  .next {width: var(--cell); height: calc(var(--cell) * 4); background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); display:flex; align-items:center; justify-content:center; border-radius:6px; margin:8px 0; padding:6px}
+  .controls{font-size:13px; color:var(--muted); margin-top:10px}
+  button{background:var(--accent); color:#031022; border:0; padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer}
+  .row {display:flex; gap:8px; align-items:center; justify-content:space-between;}
+  footer{margin-top:12px; font-size:12px; color:var(--muted)}
+  .small{font-size:12px; color:var(--muted)}
+</style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">SG</div>
+    <div class="board-panel">
+      <h1>Micro Tetris</h1>
+      <div class="muted">Play, clear lines, level up!</div>
+      <div style="height:12px"></div>
+      <canvas id="board" width="280" height="560"></canvas>
+      <div style="height:10px"></div>
+      <div class="row">
+        <div class="small">Score: <span id="score">0</span></div>
+        <div class="small">Level: <span id="level">1</span></div>
+        <div class="small">Lines: <span id="lines">0</span></div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="row">
+        <button id="pauseBtn">Pause (P)</button>
+        <button id="restartBtn">Restart (R)</button>
+      </div>
+    </div>
+
+    <aside class="info">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
         <div>
-          <h1>Stellar Garden</h1>
-          <p class="lead">tiny ideas, big constellations</p>
+          <div style="font-weight:700">Next</div>
+          <div class="muted">Preview the upcoming tetromino</div>
         </div>
       </div>
-      <nav class="muted">✨ Explore · Gallery · Plant a seed</nav>
-    </header>
 
-    <main>
-      <section class="hero panel">
-        <div class="left">
-          <h2>Plant a tiny, ridiculous idea — right now.</h2>
-          <p>Click the button, enter a name (optional), and the garden will return a small creative spark you can build on or laugh at.</p>
-          <div class="cta">
-            <button id="plantBtn">Plant a Seed</button>
-            <button class="secondary" id="surpriseBtn">Surprise Me</button>
-          </div>
-        </div>
-        <div class="right" style="width:320px">
-          <div class="panel seed-area">
-            <label class="muted">Your name (optional)</label>
-            <div class="seed-controls">
-              <input id="nameInput" type="text" placeholder="e.g. Mira, Akira, or 'a sleepy cat'" />
-              <button id="copyBtn">Copy</button>
-            </div>
-            <div id="seedOutput" class="seed-output" aria-live="polite">No seed planted yet. Try it!</div>
-            <div class="muted" style="margin-top:6px">Seeds are generated locally — nothing leaves your browser.</div>
-          </div>
-        </div>
-      </section>
+      <div style="height:10px"></div>
+      <div class="next" id="nextContainer">
+        <canvas id="next" width="112" height="112" style="image-rendering:pixelated"></canvas>
+      </div>
 
-      <section class="panel">
-        <h3 style="margin-top:0">Gallery — Specimens from the Grove</h3>
-        <div class="grid" id="gallery"></div>
-      </section>
-
-      <aside class="panel">
-        <h3 style="margin-top:0">How it works</h3>
-        <p class="muted">A tiny JS list of playful prompts + your name mixes into a short, shareable idea. Everything is friendly and whimsical — perfect for a creative warm-up or a fun social post.</p>
-        <div style="height:10px"></div>
-        <h4 style="margin:0 0 8px 0">Quick actions</h4>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="saveBtn" class="secondary">Save as file</button>
-          <button id="tweetBtn" class="secondary">Share to Twitter</button>
-        </div>
-      </aside>
-
-    </main>
-
-    <footer>
-      Made with curiosity • View source, tweak, and plant more seeds
-    </footer>
+      <div style="height:8px"></div>
+      <div class="muted">Controls</div>
+      <div class="controls">
+        ← / → : move<br>
+        ↑ : rotate<br>
+        ↓ : soft drop<br>
+        Space : hard drop<br>
+        P : pause<br>
+        R : restart
+      </div>
+      <footer>Made for quick fun — push updates to your repo to iterate!</footer>
+    </aside>
   </div>
 
-  <script>
-    // Simple single-file JS — no frameworks.
-    (function(){
-      const seeds = [
-        'A paper airplane that remembers where it flew.',
-        'A tiny library of songs for houseplants.',
-        'An umbrella that whispers which way the sun will be.',
-        'A pocket planetarium you can wear as a hat.',
-        'A recipe book that uses moonlight as an ingredient.',
-        'A map that updates itself when you dream.',
-        'Sneakers that tidy up your desktop while you walk.',
-        'A teapot that tells stories of the leaves it used.',
-        'Stickers that rearrange themselves into constellations overnight.',
-        'A clock that counts down to your next brilliant bad idea.'
-      ];
+<script>
+(() => {
+  // Grid size
+  const COLS = 10;
+  const ROWS = 20;
+  const CELL = 28; // matches CSS --cell
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
 
-      function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  const nextCanvas = document.getElementById('next');
+  const nctx = nextCanvas.getContext('2d');
+  nctx.imageSmoothingEnabled = false;
 
-      const plantBtn = document.getElementById('plantBtn');
-      const surpriseBtn = document.getElementById('surpriseBtn');
-      const seedOutput = document.getElementById('seedOutput');
-      const nameInput = document.getElementById('nameInput');
-      const copyBtn = document.getElementById('copyBtn');
-      const gallery = document.getElementById('gallery');
-      const saveBtn = document.getElementById('saveBtn');
-      const tweetBtn = document.getElementById('tweetBtn');
+  // UI elements
+  const scoreEl = document.getElementById('score');
+  const levelEl = document.getElementById('level');
+  const linesEl = document.getElementById('lines');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const restartBtn = document.getElementById('restartBtn');
 
-      function formatSeed(person, idea){
-        const when = new Date();
-        const time = when.toLocaleString();
-        if(person) return `\u2728 ${person}'s Seed — ${idea} \n\nPlanted: ${time}`;
-        return `\u2728 Seed — ${idea} \n\nPlanted: ${time}`;
+  // Colors for pieces
+  const COLORS = [
+    null,
+    '#00f0f0', // I
+    '#0000f0', // J
+    '#f0a000', // L
+    '#f0f000', // O
+    '#00f000', // S
+    '#a000f0', // T
+    '#f00000', // Z
+  ];
+
+  // Tetromino shapes (matrices)
+  const TETROMINOS = {
+    1: [[0,0,0,0],
+        [1,1,1,1],
+        [0,0,0,0],
+        [0,0,0,0]], // I
+    2: [[2,0,0],
+        [2,2,2],
+        [0,0,0]], // J
+    3: [[0,0,3],
+        [3,3,3],
+        [0,0,0]], // L
+    4: [[4,4],
+        [4,4]], // O
+    5: [[0,5,5],
+        [5,5,0],
+        [0,0,0]], // S
+    6: [[0,6,0],
+        [6,6,6],
+        [0,0,0]], // T
+    7: [[7,7,0],
+        [0,7,7],
+        [0,0,0]] // Z
+  };
+
+  // Game state
+  let arena = createMatrix(COLS, ROWS);
+  let player = {
+    pos: {x:0,y:0},
+    matrix: null,
+    next: null,
+    score: 0,
+  };
+  let dropCounter = 0;
+  let dropInterval = 800; // ms (lower = faster)
+  let lastTime = 0;
+  let isPaused = false;
+  let totalLines = 0;
+  let level = 1;
+
+  // Utils
+  function createMatrix(w,h){
+    const mat = [];
+    for(let y=0;y<h;y++){
+      mat.push(new Array(w).fill(0));
+    }
+    return mat;
+  }
+
+  function drawCell(x,y,color){
+    const px = x * CELL;
+    const py = y * CELL;
+    ctx.fillStyle = color;
+    ctx.fillRect(px + 1, py + 1, CELL - 2, CELL - 2);
+    // subtle border
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.strokeRect(px + 1, py + 1, CELL - 2, CELL - 2);
+  }
+
+  function drawMatrix(matrix, offset){
+    for(let y=0;y<matrix.length;y++){
+      for(let x=0;x<matrix[y].length;x++){
+        const val = matrix[y][x];
+        if(val){
+          drawCell(x + offset.x, y + offset.y, COLORS[val]);
+        }
       }
+    }
+  }
 
-      plantBtn.addEventListener('click', ()=>{
-        const name = nameInput.value.trim();
-        const idea = rand(seeds);
-        const text = formatSeed(name, idea);
-        seedOutput.textContent = text;
-        pushToGallery(idea);
-      });
-
-      surpriseBtn.addEventListener('click', ()=>{
-        nameInput.value = ['A friend','Someone brave','An old oak','A tiny robot'][Math.floor(Math.random()*4)];
-        plantBtn.click();
-      });
-
-      copyBtn.addEventListener('click', ()=>{
-        const text = seedOutput.textContent;
-        if(!text || text.startsWith('No seed')) return;
-        navigator.clipboard && navigator.clipboard.writeText(text).then(()=>{
-          copyBtn.textContent = 'Copied!';
-          setTimeout(()=> copyBtn.textContent = 'Copy',900);
-        }).catch(()=>{
-          alert('Could not copy — try selecting the text.');
-        });
-      });
-
-      function pushToGallery(idea){
-        const card = document.createElement('div');
-        card.className = 'card';
-        const img = document.createElement('img');
-        img.className = 'spec-img';
-        // picsum provides random images — use idea length as seed-ish value
-        const seed = encodeURIComponent(idea).slice(0,6).replace(/%/g,'');
-        img.src = `https://picsum.photos/seed/${seed}/800/500`;
-        img.alt = idea;
-        const title = document.createElement('div');
-        title.textContent = idea;
-        title.style.fontWeight = '600';
-        title.style.marginTop = '6px';
-        const sub = document.createElement('div');
-        sub.className = 'muted';
-        sub.textContent = new Date().toLocaleTimeString();
-        card.appendChild(img);
-        card.appendChild(title);
-        card.appendChild(sub);
-        gallery.prepend(card);
-        // keep gallery to 12 items
-        while(gallery.children.length>12) gallery.removeChild(gallery.lastChild);
+  function merge(arena, player){
+    for(let y=0;y<player.matrix.length;y++){
+      for(let x=0;x<player.matrix[y].length;x++){
+        if(player.matrix[y][x]){
+          arena[y + player.pos.y][x + player.pos.x] = player.matrix[y][x];
+        }
       }
+    }
+  }
 
-      // preload a few specimens
-      for(let i=0;i<6;i++) pushToGallery(rand(seeds));
+  function collide(arena, player){
+    const m = player.matrix;
+    for(let y=0;y<m.length;y++){
+      for(let x=0;x<m[y].length;x++){
+        if(m[y][x] !== 0 &&
+           (arena[y + player.pos.y] && arena[y + player.pos.y][x + player.pos.x]) !== 0){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
-      saveBtn.addEventListener('click', ()=>{
-        const text = seedOutput.textContent || 'No seed planted.';
-        const blob = new Blob([text],{type:'text/plain;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'seed.txt'; document.body.appendChild(a); a.click(); a.remove();
-        URL.revokeObjectURL(url);
-      });
+  function rotate(matrix, dir){
+    // transpose
+    for(let y=0;y<matrix.length;y++){
+      for(let x=0;x<y;x++){
+        [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+      }
+    }
+    if(dir > 0){
+      matrix.forEach(row => row.reverse());
+    } else {
+      matrix.reverse();
+    }
+  }
 
-      tweetBtn.addEventListener('click', ()=>{
-        const text = seedOutput.textContent || 'Planting a seed in the Stellar Garden!';
-        const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
-        window.open(url,'_blank');
-      });
+  function playerRotate(dir){
+    const pos = player.pos.x;
+    let offset = 1;
+    rotate(player.matrix, dir);
+    while(collide(arena, player)){
+      player.pos.x += offset;
+      offset = -(offset + (offset > 0 ? 1 : -1));
+      if(Math.abs(offset) > player.matrix[0].length){
+        rotate(player.matrix, -dir);
+        player.pos.x = pos;
+        return;
+      }
+    }
+  }
 
-    })();
-  </script>
+  function playerDrop(){
+    player.pos.y++;
+    if(collide(arena, player)){
+      player.pos.y--;
+      merge(arena, player);
+      sweep();
+      spawn();
+    }
+    dropCounter = 0;
+  }
+
+  function hardDrop(){
+    while(!collide(arena, player)){
+      player.pos.y++;
+    }
+    player.pos.y--;
+    merge(arena, player);
+    sweep();
+    spawn();
+    dropCounter = 0;
+  }
+
+  function sweep(){
+    let rowCount = 0;
+    outer: for(let y = arena.length - 1; y >= 0; y--){
+      for(let x = 0; x < arena[y].length; x++){
+        if(arena[y][x] === 0){
+          continue outer;
+        }
+      }
+      // row is full
+      const row = arena.splice(y,1)[0].fill(0);
+      arena.unshift(row);
+      rowCount++;
+      y++; // recheck same row index after splice
+    }
+    if(rowCount > 0){
+      const points = [0,40,100,300,1200]; // standard tetris scoring per cleared lines (0-4)
+      player.score += points[rowCount] * level;
+      totalLines += rowCount;
+      level = Math.floor(totalLines / 10) + 1;
+      dropInterval = Math.max(120, 800 - (level - 1) * 60); // speed up
+      updateUI();
+    }
+  }
+
+  function updateUI(){
+    scoreEl.textContent = player.score;
+    levelEl.textContent = level;
+    linesEl.textContent = totalLines;
+  }
+
+  function spawn(){
+    player.matrix = player.next || createPiece(randInt(1,7));
+    player.next = createPiece(randInt(1,7));
+    // center horizontally
+    player.pos.y = 0;
+    player.pos.x = Math.floor((COLS - player.matrix[0].length) / 2);
+    if(collide(arena, player)){
+      // game over -> reset
+      reset();
+    }
+    drawNext();
+  }
+
+  function reset(){
+    arena = createMatrix(COLS, ROWS);
+    player.score = 0;
+    totalLines = 0;
+    level = 1;
+    dropInterval = 800;
+    player.next = createPiece(randInt(1,7));
+    player.matrix = null;
+    // small flash / message (we keep it subtle)
+    updateUI();
+    spawn();
+  }
+
+  function createPiece(type){
+    const mat = TETROMINOS[type];
+    // deep clone the matrix
+    return mat.map(row => row.slice());
+  }
+
+  function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  // draw everything
+  function draw(){
+    // clear canvas
+    ctx.clearRect(0,0,canvas.width, canvas.height);
+    // background grid
+    for(let y=0;y<ROWS;y++){
+      for(let x=0;x<COLS;x++){
+        const val = arena[y][x];
+        if(val){
+          drawCell(x,y,COLORS[val]);
+        } else {
+          // faint grid lines
+          ctx.fillStyle = 'rgba(255,255,255,0.02)';
+          ctx.fillRect(x*CELL + 1, y*CELL + 1, CELL - 2, CELL - 2);
+        }
+      }
+    }
+    if(player.matrix){
+      drawMatrix(player.matrix, player.pos);
+    }
+  }
+
+  function drawNext(){
+    const size = 4; // next preview grid 4x4
+    nctx.clearRect(0,0,nextCanvas.width,nextCanvas.height);
+    const scale = nextCanvas.width / (size * CELL);
+    // draw centered
+    const matrix = player.next || createPiece(1);
+    const padX = Math.floor((size - matrix[0].length) / 2);
+    const padY = Math.floor((size - matrix.length) / 2);
+    // small background
+    nctx.fillStyle = 'rgba(255,255,255,0.02)';
+    nctx.fillRect(0,0,nextCanvas.width,nextCanvas.height);
+    for(let y=0;y<matrix.length;y++){
+      for(let x=0;x<matrix[y].length;x++){
+        const val = matrix[y][x];
+        if(val){
+          nctx.fillStyle = COLORS[val];
+          const px = (x + padX) * CELL * scale;
+          const py = (y + padY) * CELL * scale;
+          const w = CELL * scale - 2;
+          nctx.fillRect(px + 1, py + 1, w, w);
+        }
+      }
+    }
+  }
+
+  // game loop
+  function update(time = 0){
+    if(isPaused){
+      lastTime = time;
+      requestAnimationFrame(update);
+      return;
+    }
+    const delta = time - lastTime;
+    lastTime = time;
+    dropCounter += delta;
+    if(dropCounter > dropInterval){
+      playerDrop();
+    }
+    draw();
+    requestAnimationFrame(update);
+  }
+
+  // Input handling
+  document.addEventListener('keydown', event => {
+    if(event.repeat) return;
+    if(event.key === 'ArrowLeft'){
+      player.pos.x--;
+      if(collide(arena, player)) player.pos.x++;
+    } else if(event.key === 'ArrowRight'){
+      player.pos.x++;
+      if(collide(arena, player)) player.pos.x--;
+    } else if(event.key === 'ArrowDown'){
+      playerDrop();
+    } else if(event.key === 'ArrowUp'){
+      playerRotate(1);
+    } else if(event.code === 'Space'){
+      event.preventDefault();
+      hardDrop();
+    } else if(event.key === 'p' || event.key === 'P'){
+      togglePause();
+    } else if(event.key === 'r' || event.key === 'R'){
+      reset();
+    }
+  });
+
+  pauseBtn.addEventListener('click', togglePause);
+  restartBtn.addEventListener('click', reset);
+
+  function togglePause(){
+    isPaused = !isPaused;
+    pauseBtn.textContent = isPaused ? 'Resume (P)' : 'Pause (P)';
+    if(!isPaused) lastTime = performance.now();
+  }
+
+  // initialize
+  function init(){
+    // scale canvas to cell size
+    canvas.width = COLS * CELL;
+    canvas.height = ROWS * CELL;
+    // set next canvas size to show 4x4 at CELL scale
+    nextCanvas.width = CELL * 4;
+    nextCanvas.height = CELL * 4;
+    player.next = createPiece(randInt(1,7));
+    spawn();
+    updateUI();
+    requestAnimationFrame(update);
+  }
+
+  // expose small API for pushing score etc (not used now)
+  window.microTetris = { reset };
+
+  init();
+})();
+</script>
 </body>
 </html>
